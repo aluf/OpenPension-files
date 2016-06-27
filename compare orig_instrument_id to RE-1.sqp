@@ -18,3 +18,4 @@ order by           ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('
          p.report_year,
          p.report_qurater  
    
+--lior
