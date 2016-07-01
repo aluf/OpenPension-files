@@ -1,0 +1,78 @@
+--
+-- Indexes for empty issuer where instrument_type = niyarot erech schurum
+--          		   and instrument_sub_type NOT IN  (opzyot, chozim atidiim, kitvey opzyot)
+-- 13/06/2016
+-- changed condition from instrument_sub_type to asset_type NOT IN  (opzyot, hozim atidiyim, kranot hashkaa)
+--  and including instrument_type of both "neyarot erech schirim" and "neyarot erech lo schirim"
+-- 
+--  06/06/2016
+--  Add filter on instumrnt_sub_type 
+--
+-- 02/06/2016
+-- 1st edition
+
+select tot.managing_body,
+       tot.report_year,
+       tot.report_qurater,
+       tot.all_lines,
+       tot.sum_in_all_lines,
+        
+       COALESCE(inv.invalid_lines,0) AS invalid_lines,
+       COALESCE(inv.sum_in_invalid_lines,0) AS sum_in_invalid_lines,
+       
+       COALESCE(inv.invalid_lines,0)*100.00/tot.all_lines AS percent_invalid_lines,
+       COALESCE(inv.sum_in_invalid_lines,0)*100.00/tot.sum_in_all_lines AS percent_of_sum_in_invalid_lines
+       
+from 
+      (SELECT t.managing_body,
+         t.report_year,
+         t.report_qurater,
+         count(t.managing_body) AS all_lines,
+         sum(t.fair_value) AS sum_in_all_lines
+       
+         from pension_data_all t
+
+         where t.instrument_type IN ('ניירות ערך סחירים', 'ניירות ערך לא סחירים')
+             and t.asset_type NOT IN  ('אופציות', 'חוזים עתידיים', 'קרנות השקעה')
+--             and   t.managing_body in ('as', 'migdal')
+     
+         group by t.managing_body,
+           t.report_year,
+           t.report_qurater
+
+         order by t.managing_body,
+           t.report_year,
+           t.report_qurater
+       ) AS tot
+       
+LEFT OUTER JOIN
+      (SELECT p.managing_body,
+         p.report_year,
+         p.report_qurater,
+         count(p.managing_body) AS invalid_lines,
+         sum(p.fair_value) AS sum_in_invalid_lines
+       
+         from pension_data_all p
+
+         where p.instrument_type IN ('ניירות ערך סחירים', 'ניירות ערך לא סחירים')
+             and p.asset_type NOT IN  ('אופציות', 'חוזים עתידיים', 'קרנות השקעה')
+             and   COALESCE(p.issuer,'') = ''
+--             and   p.managing_body in ('as', 'migdal')
+     
+         group by p.managing_body,
+           p.report_year,
+           p.report_qurater
+
+         order by p.managing_body,
+           p.report_year,
+           p.report_qurater
+       ) AS inv 
+       ON (tot.managing_body = inv.managing_body
+       and tot.report_year = inv.report_year
+       and tot.report_qurater = inv.report_qurater
+       )
+
+order by tot.managing_body,
+       tot.report_year,
+       tot.report_qurater;     
+         
