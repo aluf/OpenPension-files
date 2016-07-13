@@ -1,3 +1,5 @@
+--SELECT          ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('[A-Z]{2}[A-Z0-9]{8,10}' ) ) AS similar_to,
+--SELECT          ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('[A-Z]{2}[A-Z0-9]{8,10}' ) ) AS similar_to,
 SELECT          ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('[A-Z]{2}[A-Z0-9]{8,10}' ) ) AS similar_to,
          p.orig_instrument_id,
          p.instrument_id,
@@ -7,9 +9,9 @@ SELECT          ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('[A-
        
          from pension_data_all p
 
-         where p.instrument_type = 'ðééøåú òøê ñçéøéí'
+         where p.instrument_type = 'Ã°Ã©Ã©Ã¸Ã¥Ãº Ã²Ã¸Ãª Ã±Ã§Ã©Ã¸Ã©Ã­'
 		       and p.currency <> 'NIS'
-           and p.instrument_sub_type  = 'îðéåú'
+           and p.instrument_sub_type  = 'Ã®Ã°Ã©Ã¥Ãº'
 
 order by           ((COALESCE(upper(p.orig_instrument_id),'')) NOT SIMILAR TO ('[A-Z]{2}[A-Z0-9]{8,10}')),
          p.orig_instrument_id,
