@@ -1,0 +1,478 @@
+SELECT tot.managing_body,
+       tot.report_year,
+       tot.report_qurater,
+       tot.lines_in_category,
+       COALESCE(err.invalid_lines,0) AS invalid_lines,
+       COALESCE(err.invalid_lines,0)*100.00/tot.lines_in_category AS percent_invalid_lines
+       
+FROM 
+(SELECT p.managing_body, p.report_year, p.report_qurater, count(*) AS lines_in_category
+FROM production p
+WHERE (TRUE -- COALESCE(p.instrument_symbol,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.instrument_id,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                  AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.underlying_asset,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('מוצרים מובנים'))
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.industry,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים'))
+              )
+      )
+    OR
+      (TRUE -- COALESCE(p.rating,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות נאמנות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.rating_agency,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות נאמנות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.date_of_purchase,'01/01/1900') = '01/01/1900'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.average_of_duration,-99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.currency,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.intrest_rate, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.yield, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.par_value, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.rate, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.market_cap, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('מניות', 'מוצרים מובנים'))
+              OR
+               (p.instrument_type = 'מזומנים')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.fair_value, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.rate_of_ipo, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.rate_of_fund, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.date_of_revaluation,'01/01/1900') = '01/01/1900'
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.type_of_asset,'NULL') = 'NULL'
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+    OR
+      (TRUE -- COALESCE(p.tmp_name,-99999) = -99999
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+
+GROUP BY p.managing_Body, p.report_year, p.report_qurater
+ORDER BY p.managing_Body, p.report_year, p.report_qurater
+) AS tot
+
+LEFT OUTER JOIN
+(SELECT p.managing_body, P.report_year, P.report_qurater,count(*) AS invalid_lines
+FROM production p
+WHERE (coalesce(p.instrument_symbol,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.instrument_id,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                  AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (coalesce(p.underlying_asset,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('מוצרים מובנים'))
+             )
+      )
+    OR
+      (coalesce(p.industry,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים'))
+              )
+      )
+    OR
+      (coalesce(p.rating,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות נאמנות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.rating_agency,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות נאמנות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.date_of_purchase,'01/01/1900') = '01/01/1900'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+             )
+      )
+    OR
+      (coalesce(p.average_of_duration,-99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (coalesce(p.currency,'NULL') = 'NULL'
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (coalesce(p.intrest_rate, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.yield, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.par_value, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (coalesce(p.rate, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+             )
+      )
+    OR
+      (coalesce(p.market_cap, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('מניות', 'מוצרים מובנים'))
+              OR
+               (p.instrument_type = 'מזומנים')
+             )
+      )
+    OR
+      (coalesce(p.fair_value, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.rate_of_ipo, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'חוזים עתידיים', 'מוצרים מובנים'))
+             )
+      )
+    OR
+      (coalesce(p.rate_of_fund, -99999) = -99999
+         AND ( (p.instrument_type = 'ניירות ערך סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'תעודות סל', 'קרנות נאמנות', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים'))
+              OR  
+               (p.instrument_type = 'ניירות ערך לא סחירים'
+                 AND p.instrument_sub_type IN ('תעודות התחייבות ממשלתיות', 'תעודות חוב מסחריות', 'אג"ח קונצרני', 'מניות', 'קרנות השקעה', 'כתבי אופציה', 'אופציות', 'מוצרים מובנים', 'הלוואות'))
+              OR
+               (p.instrument_type = 'מזומנים')
+              OR
+               (p.instrument_type = 'פקדונות')
+              OR
+               (p.instrument_type = 'זכויות מקרקעין')
+              OR
+               (p.instrument_type = 'השקעות אחרות')
+             )
+      )
+    OR
+      (coalesce(p.date_of_revaluation,'01/01/1900') = '01/01/1900'
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+    OR
+      (coalesce(p.type_of_asset,'NULL') = 'NULL'
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+    OR
+      (coalesce(p.tmp_name,-99999) = -99999
+         AND ((p.instrument_type = 'זכויות מקרקעין')
+             )
+      )
+
+GROUP BY p.managing_Body, p.report_year, p.report_qurater
+ORDER BY p.managing_Body, P.report_year, p.report_qurater
+) AS err
+ON (tot.managing_body = err.managing_body 
+   AND tot.report_year = err.report_year
+   AND tot.report_qurater = err.report_qurater
+   )
